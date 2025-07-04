@@ -13,7 +13,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
             color: #333;
         }
@@ -84,6 +83,58 @@
             letter-spacing: 1px;
         }
 
+        footer {
+            margin: 20px 0;
+            font-size: 16px;
+            color: #01579b;
+            text-align: center;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        #ccpa-notice {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            z-index: 1000;
+            display: none;
+        }
+
+        #ccpa-notice a {
+            color: #b3e5fc;
+            text-decoration: underline;
+        }
+
+        #ccpa-notice button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        #ccpa-notice button:hover {
+            background: #0056b3;
+        }
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 32px;
@@ -98,6 +149,16 @@
             }
             .game-card span {
                 font-size: 16px;
+            }
+            footer {
+                font-size: 14px;
+            }
+            #ccpa-notice {
+                font-size: 14px;
+            }
+            #ccpa-notice button {
+                font-size: 14px;
+                padding: 8px 16px;
             }
         }
     </style>
@@ -121,10 +182,34 @@
             <img src="https://cdn-icons-png.flaticon.com/512/2039/2039225.png" alt="Crossword">
             <span>Crossword</span>
         </a>
-        <a href="bingohalls.html" class="game-card">
+        <a href="bingo.html" class="game-card">
             <img src="https://cdn-icons-png.flaticon.com/512/1048/1048925.png" alt="Bingo">
             <span>Bingo Halls</span>
         </a>
     </div>
+    <footer>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="do-not-sell.html">Do Not Sell My Personal Information</a>
+    </footer>
+    <div id="ccpa-notice">
+        <p>We use cookies to improve your experience and for ad personalization. <a href="privacy-policy.html">Learn more</a>. California residents can opt out of data sales.</p>
+        <button id="acknowledge-notice">OK</button>
+    </div>
+    <script>
+        // CCPA Notice (simplified for demonstration; customize for production)
+        function showCCPANotice() {
+            const noticeAcknowledged = localStorage.getItem('ccpaNotice');
+            if (!noticeAcknowledged) {
+                document.getElementById('ccpa-notice').style.display = 'block';
+            }
+        }
+
+        document.getElementById('acknowledge-notice').addEventListener('click', () => {
+            localStorage.setItem('ccpaNotice', 'acknowledged');
+            document.getElementById('ccpa-notice').style.display = 'none';
+        });
+
+        window.onload = showCCPANotice;
+    </script>
 </body>
 </html>
