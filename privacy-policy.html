@@ -1,0 +1,127 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Games for Senior</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            margin: 30px 0;
+        }
+        h1 {
+            font-size: 36px;
+            color: #01579b;
+            text-align: center;
+        }
+        h2 {
+            font-size: 24px;
+            color: #01579b;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 28px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Privacy Policy</h1>
+        <p>Last Updated: July 4, 2025</p>
+        <p>Welcome to Games for Seniors. This Privacy Policy explains how we collect, use, and protect your information when you visit our website.</p>
+        
+        <h2>Information We Collect</h2>
+        <p>We may collect non-personal information such as browser type, device type, and anonymized usage data through cookies to improve your experience and personalize ads. We do not collect personal information directly unless you provide it (e.g., via contact forms).</p>
+        
+        <h2>Use of Cookies</h2>
+        <p>We use cookies to enhance your experience and for ad personalization through Google Ads. Cookies help us understand how you interact with our site and serve relevant advertisements.</p>
+        
+        <h2>Third-Party Services</h2>
+        <p>We use Google Ads to run advertising campaigns. Google may use cookies to serve personalized ads based on your interests. Learn more at <a href="https://policies.google.com/technologies/ads">Google’s Ad Policies</a>.</p>
+        
+        <h2>CCPA Rights (California Residents)</h2>
+        <p>Under the California Consumer Privacy Act (CCPA), California residents have the right to know what personal information is collected, request deletion, and opt out of the sale of personal information. We do not sell personal information, but you can opt out of data sharing for ad personalization via our <a href="do-not-sell.html">Do Not Sell My Personal Information</a> page.</p>
+        
+        <h2>Contact Us</h2>
+        <p>For questions about this policy or to exercise your CCPA rights, contact us at gameforsenior88601992@gmail.com.</p>
+        
+        <h2>Updates</h2>
+        <p>We may update this policy to reflect changes in our practices or legal requirements. Check this page periodically for updates.</p>
+    </div>
+</body>
+</html>
