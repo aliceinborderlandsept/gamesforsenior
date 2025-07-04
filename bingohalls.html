@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Halls - Games for Seniors</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        h1 {
+            margin: 30px 0;
+            font-size: 40px;
+            font-weight: 700;
+            color: #01579b;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1::before {
+            content: '🎰';
+            font-size: 48px;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+        }
+
+        #bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-template-rows: repeat(6, 60px);
+            gap: 2px;
+            background: #333;
+            padding: 2px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #01579b;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .cell.header {
+            background: #b3e5fc;
+            color: #01579b;
+            font-size: 28px;
+            cursor: default;
+        }
+
+        .cell.free {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .cell.marked {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .cell.called {
+            background: #e53935;
+            color: white;
+        }
+
+        #called-numbers {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 600px;
+            word-wrap: break-word;
+        }
+
+        #controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        #start-button, #reset-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        #start-button:hover, #reset-button:hover {
+            background: #0056b3;
+        }
+
+        #start-button.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        #message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #01579b;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 32px;
+            }
+            #bingo-grid {
+                grid-template-columns: repeat(5, 50px);
+                grid-template-rows: repeat(6, 50px);
+            }
+            .cell {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .cell.header {
+                font-size: 24px;
+            }
+            #called-numbers {
+                font-size: 16px;
+            }
+            #message {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Bingo Halls</h1>
+    <div id="game-container">
+        <div id="bingo-grid"></div>
+        <div id="called-numbers">Called Numbers: </div>
+        <div id="controls">
+            <button id="start-button">Start Calling</button>
+            <button id="reset-button">Reset Game</button>
+        </div>
+        <div id="message"></div>
+    </div>
+    <script>
+        const gridSize = 5;
+        const columns = {
+            B: { range: [1, 15], numbers: [] },
+            I: { range: [16, 30], numbers: [] },
+            N: { range: [31, 45], numbers: [] },
+            G: { range: [46, 60], numbers: [] },
+            O: { range: [61, 75], numbers: [] }
+        };
+        let card = [];
+        let calledNumbers = [];
+        let isCalling = false;
+        let callInterval = null;
+
+        function generateCard() {
+            card = [];
+            Object.keys(columns).forEach((col, colIndex) => {
+                const { range } = columns[col];
+                const nums = Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i);
+                for (let i = nums.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [nums[i], nums[j]] = [nums[j], nums[i]];
+                }
+                columns[col].numbers = nums.slice(0, colIndex === 2 ? 4 : 5);
+                if (colIndex === 2) {
+                    columns[col].numbers.splice(2, 0, 'FREE');
+                }
+                card.push(columns[col].numbers);
+            });
+        }
+
+        function initializeGrid() {
+            const grid = document.getElementById('bingo-grid');
+            grid.innerHTML = '';
+            // Add header row
+            ['B', 'I', 'N', 'G', 'O'].forEach(letter => {
+                const header = document.createElement('div');
+                header.classList.add('cell', 'header');
+                header.textContent = letter;
+                grid.appendChild(header);
+            });
+            // Add card cells
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    const value = card[col][row];
+                    cell.textContent = value;
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    if (value === 'FREE') {
+                        cell.classList.add('free');
+                        cell.dataset.marked = 'true';
+                    } else {
+                        cell.dataset.value = value;
+                        cell.dataset.marked = 'false';
+                        cell.addEventListener('click', () => markCell(cell));
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function markCell(cell) {
+            if (isCalling && cell.dataset.marked === 'false' && calledNumbers.includes(parseInt(cell.dataset.value))) {
+                cell.classList.add('marked');
+                cell.dataset.marked = 'true';
+                checkWin();
+            }
+        }
+
+        function callNumber() {
+            let availableNumbers = Array.from({ length: 75 }, (_, i) => i + 1).filter(n => !calledNumbers.includes(n));
+            if (availableNumbers.length === 0) {
+                stopCalling();
+                return;
+            }
+            const num = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+            calledNumbers.push(num);
+            const colLetter = num <= 15 ? 'B' : num <= 30 ? 'I' : num <= 45 ? 'N' : num <= 60 ? 'G' : 'O';
+            document.getElementById('called-numbers').textContent = `Called Numbers: ${calledNumbers.map(n => `${colLetter}${n}`).join(', ')}`;
+            document.querySelectorAll(`.cell[data-value="${num}"]`).forEach(cell => {
+                if (cell.dataset.marked === 'false') {
+                    cell.classList.add('called');
+                }
+            });
+        }
+
+        function startCalling() {
+            if (!isCalling) {
+                isCalling = true;
+                document.getElementById('start-button').textContent = 'Stop Calling';
+                document.getElementById('start-button').classList.add('disabled');
+                callInterval = setInterval(callNumber, 3000);
+            } else {
+                stopCalling();
+            }
+        }
+
+        function stopCalling() {
+            isCalling = false;
+            document.getElementById('start-button').textContent = 'Start Calling';
+            document.getElementById('start-button').classList.remove('disabled');
+            clearInterval(callInterval);
+        }
+
+        function checkWin() {
+            // Check rows
+            for (let row = 0; row < gridSize; row++) {
+                if (Array.from(document.querySelectorAll(`.cell[data-row="${row}"]:not(.header)`)).every(cell => cell.dataset.marked === 'true')) {
+                    endGame('You won with a complete row!');
+                    return;
+                }
+            }
+            // Check columns
+            for (let col = 0; col < gridSize; col++) {
+                if (Array.from(document.querySelectorAll(`.cell[data-col="${col}"]:not(.header)`)).every(cell => cell.dataset.marked === 'true')) {
+                    endGame('You won with a complete column!');
+                    return;
+                }
+            }
+            // Check diagonals
+            if (Array.from(document.querySelectorAll('.cell:not(.header)')).filter(cell => parseInt(cell.dataset.row) === parseInt(cell.dataset.col)).every(cell => cell.dataset.marked === 'true')) {
+                endGame('You won with a diagonal!');
+                return;
+            }
+            if (Array.from(document.querySelectorAll('.cell:not(.header)')).filter(cell => parseInt(cell.dataset.row) + parseInt(cell.dataset.col) === gridSize - 1).every(cell => cell.dataset.marked === 'true')) {
+                endGame('You won with a diagonal!');
+                return;
+            }
+        }
+
+        function endGame(message) {
+            stopCalling();
+            document.getElementById('message').textContent = message;
+            document.getElementById('start-button').disabled = true;
+        }
+
+        function resetGame() {
+            stopCalling();
+            generateCard();
+            calledNumbers = [];
+            document.getElementById('called-numbers').textContent = 'Called Numbers: ';
+            document.getElementById('message').textContent = '';
+            document.getElementById('start-button').disabled = false;
+            initializeGrid();
+        }
+
+        document.getElementById('start-button').addEventListener('click', startCalling);
+        document.getElementById('reset-button').addEventListener('click', resetGame);
+
+        generateCard();
+        initializeGrid();
+    </script>
+</body>
+</html>
