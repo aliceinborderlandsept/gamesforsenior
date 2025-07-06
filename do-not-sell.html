@@ -1,127 +1,19 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Do Not Sell My Personal Information - Games for Seniors</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #e0f7fa, #80deea);
-            font-family: 'Segoe UI', Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
-        }
-        .container {
-            width: 90%;
-            max-width: 900px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            padding: 40px;
-            margin: 30px 0;
-        }
-        h1 {
-            font-size: 36px;
-            color: #01579b;
-            text-align: center;
-        }
-        p {
-            font-size: 18px;
-            line-height: 1.6;
-            margin: 10px 0;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 28px;
-            }
-            p {
-                font-size: 16px;
-            }
-            button {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Do Not Sell My Personal Information</h1>
-        <p>Under the California Consumer Privacy Act (CCPA), California residents have the right to opt out of the sale of their personal information. Games for Seniors does not sell personal information, but we use cookies for ad personalization through Google Ads.</p>
-        <p>To opt out of data sharing for personalized ads, click the button below. This will limit data shared with Google Ads for ad targeting.</p>
-        <button id="opt-out">Opt Out</button>
-        <p>For more information, see our <a href="privacy-policy.html">Privacy Policy</a> or contact us at [your-email@example.com].</p>
-    </div>
-    <script>
-        document.getElementById('opt-out').addEventListener('click', () => {
-            localStorage.setItem('ccpaOptOut', 'true');
-            alert('You have opted out of data sharing for personalized ads.');
-            // In production, integrate with Google Ads to disable personalized ads (e.g., set data_ad_personalization to false).
-        });
-    </script>
+    <h1>Do Not Sell My Personal Information</h1>
+    
+    <p>Under the California Consumer Privacy Act (CCPA), California residents have the right to opt out of the sale of their personal information. Games for Seniors does not sell personal information, but we use cookies for ad personalization through Google Ads.</p>
+    
+    <p>To opt out of data sharing for personalized ads, click the button below. This will limit data shared with Google Ads for ad targeting. [Note: Please configure this button to adjust cookie settings or follow browser opt-out instructions.]</p>
+    
+    <button>Opt Out</button>
+    
+    <p>For more information, see our <a href="index.html">Privacy Policy</a> or contact us at <a href="mailto:gameforsenior88601992@gmail.com">gameforsenior88601992@gmail.com</a>.</p>
 </body>
 </html>
